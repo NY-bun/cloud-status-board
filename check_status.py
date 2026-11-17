@@ -7,7 +7,7 @@ import pytz
 # チェック対象のサービス定義
 TARGETS = {
     "Outlook / Microsoft 365": "https://status.office365.com/",
-    "BLEND": "https://status.motivationworks.co.jp/", # 各自治体・学校等のURLに合わせて変更
+    "BLEND": "https://status.motivationworks.co.jp/",
     "ロイロノート": "https://status.loilonote.app/ja"
 }
 
@@ -84,11 +84,19 @@ def generate_html(results, checked_time, all_healthy):
         }}
         .service-item:last-child {{ border-bottom: none; }}
         .service-name {{ font-weight: 600; font-size: 16px; }}
+        .badge-link {{
+            text-decoration: none;
+        }}
         .badge {{
+            display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: bold;
+            transition: opacity 0.2s;
+        }}
+        .badge:hover {{
+            opacity: 0.85;
         }}
         .badge.success {{ background-color: #2ecc71; color: white; }}
         .badge.danger {{ background-color: #e74c3c; color: white; }}
@@ -109,11 +117,13 @@ def generate_html(results, checked_time, all_healthy):
         <ul class="service-list">
 """
 
-    for name, (status_text, badge_class, _) in results.items():
+    for name, (status_text, badge_class, is_ok, url) in results.items():
         html_content += f"""
             <li class="service-item">
                 <span class="service-name">{name}</span>
-                <span class="badge {badge_class}">{status_text}</span>
+                <a href="{url}" target="_blank" rel="noopener noreferrer" class="badge-link">
+                    <span class="badge {badge_class}">{status_text}</span>
+                </a>
             </li>
 """
 
@@ -121,7 +131,7 @@ def generate_html(results, checked_time, all_healthy):
         </ul>
         <div class="footer">
             最終確認日時: {checked_time} (JST)<br>
-            ※このページは毎朝5:00に自動更新されます
+            ※このページは15分おきに自動更新されます
         </div>
     </div>
 </body>
@@ -135,7 +145,7 @@ def main():
 
     for name, url in TARGETS.items():
         status_text, badge_class, is_ok = check_service(url)
-        results[name] = (status_text, badge_class, is_ok)
+        results[name] = (status_text, badge_class, is_ok, url)
         if not is_ok:
             all_healthy = False
 

@@ -81,6 +81,7 @@ def generate_html(results, checked_time, all_healthy):
             border-bottom: 2px solid #eee;
             padding-bottom: 12px;
             padding-right: 100px;
+            text-align: center;
         }}
         .banner {{
             padding: 15px;
@@ -153,7 +154,7 @@ def generate_html(results, checked_time, all_healthy):
 
         const dict = {{
             ja: {{
-                title: "🛠️ クラウドサービス ステータス",
+                title: "文杉クラウドサービス稼働状況",
                 bannerSuccess: "すべてのサービスは正常に稼働しています",
                 bannerDanger: "一部のサービスに異常・接続エラーを検知しています",
                 statusOk: "正常稼働中",

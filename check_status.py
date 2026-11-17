@@ -6,7 +6,8 @@ import sys
 TARGETS = {
     "Outlook / Microsoft 365": "https://status.office365.com/",
     "BLEND": "https://status.motivationworks.co.jp/",
-    "ロイロノート": "https://status.loilonote.app/ja"
+    "ロイロノート": "https://status.loilonote.app/ja",
+    "Zoom": "https://www.zoomstatus.com/"
 }
 
 def check_service(url):

@@ -16,22 +16,25 @@ def check_service(url):
         )
         with urllib.request.urlopen(req, timeout=15) as response:
             if response.status == 200:
-                return "正常稼働中", "success", True
+                return "ok", True
             else:
-                return f"異常応答 (HTTP {response.status})", "danger", False
+                return "error", False
     except Exception as e:
-        return f"接続エラー", "danger", False
+        return "error", False
 
 def generate_html(results, checked_time, all_healthy):
-    status_banner_class = "success" if all_healthy else "danger"
-    status_banner_text = "すべてのサービスは正常に稼働しています" if all_healthy else "一部のサービスに異常・接続エラーを検知しています"
+    # JSON風のデータ構造をHTML内に埋め込む
+    items_js = []
+    for name, (status_code, is_ok, url) in results.items():
+        items_js.append(f'{{name: "{name}", status: "{status_code}", url: "{url}"}}')
+    items_str = "[" + ", ".join(items_js) + "]"
 
     html_content = f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文杉 クラウドサービス 稼働状況</title>
+    <title>Cloud Service Status</title>
     <meta http-equiv="refresh" content="300">
     <style>
         body {{
@@ -48,6 +51,28 @@ def generate_html(results, checked_time, all_healthy):
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative;
+        }}
+        .lang-switcher {{
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            gap: 5px;
+        }}
+        .lang-btn {{
+            background: #eee;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+        }}
+        .lang-btn.active {{
+            background: #3498db;
+            color: white;
         }}
         h1 {{
             font-size: 20px;
@@ -55,7 +80,7 @@ def generate_html(results, checked_time, all_healthy):
             color: #2c3e50;
             border-bottom: 2px solid #eee;
             padding-bottom: 12px;
-            text-align: center;
+            padding-right: 100px;
         }}
         .banner {{
             padding: 15px;
@@ -106,30 +131,90 @@ def generate_html(results, checked_time, all_healthy):
 </head>
 <body>
     <div class="container">
-        <h1>文杉 クラウドサービス 稼働状況</h1>
-        <div class="banner {status_banner_class}">
-            {status_banner_text}
+        <div class="lang-switcher">
+            <button class="lang-btn" id="btn-ja" onclick="setLanguage('ja')">日本語</button>
+            <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">English</button>
         </div>
-        <ul class="service-list">
-"""
-
-    for name, (status_text, badge_class, is_ok, url) in results.items():
-        html_content += f"""
-            <li class="service-item">
-                <span class="service-name">{name}</span>
-                <a href="{url}" target="_blank" rel="noopener noreferrer" class="badge-link">
-                    <span class="badge {badge_class}">{status_text}</span>
-                </a>
-            </li>
-"""
-
-    html_content += f"""
-        </ul>
+        
+        <h1 id="title"></h1>
+        <div id="banner" class="banner"></div>
+        
+        <ul class="service-list" id="service-list"></ul>
+        
         <div class="footer">
-            最終確認日時: {checked_time} (JST)<br>
-            ※このページは15分おきに自動更新されます
+            <span id="footer-text"></span>: {checked_time} (JST)<br>
+            <span id="footer-note"></span>
         </div>
     </div>
+
+    <script>
+        const allHealthy = {"true" if all_healthy else "false"};
+        const services = {items_str};
+
+        const dict = {{
+            ja: {{
+                title: "🛠️ クラウドサービス ステータス",
+                bannerSuccess: "すべてのサービスは正常に稼働しています",
+                bannerDanger: "一部のサービスに異常・接続エラーを検知しています",
+                statusOk: "正常稼働中",
+                statusError: "接続エラー",
+                footerText: "最終確認日時",
+                footerNote: "※このページは15分おきに自動更新されます"
+            }},
+            en: {{
+                title: "🛠️ Cloud Service Status",
+                bannerSuccess: "All services are operating normally",
+                bannerDanger: "Issues or connection errors detected",
+                statusOk: "Operational",
+                statusError: "Connection Error",
+                footerText: "Last checked",
+                footerNote: "*This page automatically refreshes every 15 minutes"
+            }}
+        }};
+
+        function setLanguage(lang) {{
+            // ボタンのアクティブ状態更新
+            document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+            const t = dict[lang] || dict.en;
+
+            // テキストの適用
+            document.getElementById('title').innerText = t.title;
+            
+            const banner = document.getElementById('banner');
+            banner.className = "banner " + (allHealthy ? "success" : "danger");
+            banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;
+
+            document.getElementById('footer-text').innerText = t.footerText;
+            document.getElementById('footer-note').innerText = t.footerNote;
+
+            // リストの生成
+            const list = document.getElementById('service-list');
+            list.innerHTML = '';
+            
+            services.forEach(s => {{
+                const isOk = s.status === 'ok';
+                const badgeClass = isOk ? 'success' : 'danger';
+                const statusText = isOk ? t.statusOk : t.statusError;
+
+                const li = document.createElement('li');
+                li.className = 'service-item';
+                li.innerHTML = `
+                    <span class="service-name">${{s.name}}</span>
+                    <a href="${{s.url}}" target="_blank" rel="noopener noreferrer" class="badge-link">
+                        <span class="badge ${{badgeClass}}">${{statusText}}</span>
+                    </a>
+                `;
+                list.appendChild(li);
+            }});
+        }}
+
+        // 初期化: ブラウザ言語判定 (jaが含まれれば日本語、それ以外は英語)
+        const userLang = navigator.language || navigator.userLanguage;
+        const initialLang = userLang.startsWith('ja') ? 'ja' : 'en';
+        setLanguage(initialLang);
+    </script>
 </body>
 </html>
 """
@@ -140,12 +225,11 @@ def main():
     all_healthy = True
 
     for name, url in TARGETS.items():
-        status_text, badge_class, is_ok = check_service(url)
-        results[name] = (status_text, badge_class, is_ok, url)
+        status_code, is_ok = check_service(url)
+        results[name] = (status_code, is_ok, url)
         if not is_ok:
             all_healthy = False
 
-    # JST (UTC+9)
     jst = datetime.timezone(datetime.timedelta(hours=9))
     checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
 

@@ -1,0 +1,44 @@
+name: Deploy Cloud Status Page
+
+on:
+  schedule:
+    # 15分おきに実行 (*/15 * * * *)
+    - cron: '*/15 * * * *'
+    # 手動でも実行可能にする
+  workflow_dispatch:
+
+# GitHub Pagesへのデプロイ権限を設定
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (pytz)
+        run: pip install pytz
+
+      - name: Run status check script
+        run: python check_status.py
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

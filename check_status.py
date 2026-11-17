@@ -7,9 +7,9 @@ TARGETS = {
     "Outlook / Microsoft 365": "https://status.office365.com/",
     "BLEND": "https://status.motivationworks.co.jp/",
     "ロイロノート": "https://status.loilonote.app/ja",
+    "Canva": "https://www.canvastatus.com/",
     "Zoom": "https://www.zoomstatus.com/",
-    "L-Gate": "https://l-gate-status.info/",
-    "Canva": "https://www.canvastatus.com/"
+    "L-Gate": "https://l-gate-status.info/"
 }
 
 def check_service(url):

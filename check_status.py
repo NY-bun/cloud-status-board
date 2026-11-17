@@ -33,7 +33,7 @@ def generate_html(results, checked_time, all_healthy):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Service Status</title>
+    <title>Bunsugi Cloud Service Status</title>
     <meta http-equiv="refresh" content="300">
     <style>
         body {{

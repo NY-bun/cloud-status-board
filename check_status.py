@@ -28,12 +28,21 @@ def generate_html(results, checked_time, all_healthy):
         items_js.append(f'{{name: "{name}", status: "{status_code}", url: "{url}"}}')
     items_str = "[" + ", ".join(items_js) + "]"
 
+    # 稼働状況に合わせてファビコンの色とアイコンを動的に変更
+    if all_healthy:
+        # 緑の円にチェック
+        favicon_svg = '<svg xmlns="<unsafe_url>http://www.w3.org/2000/svg</unsafe_url>" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%232ecc71"/><path d="M30 50 L45 65 L70 35" fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    else:
+        # 赤の円にバツ
+        favicon_svg = '<svg xmlns="<unsafe_url>http://www.w3.org/2000/svg</unsafe_url>" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%23e74c3c"/><path d="M35 35 L65 65 M65 35 L35 65" fill="none" stroke="white" stroke-width="12" stroke-linecap="round"/></svg>'
+
     html_content = f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bunsugi Cloud Service Status</title>
+    <title>Cloud Service Status</title>
+    <link rel="icon" href="data:image/svg+xml,{favicon_svg}">
     <meta http-equiv="refresh" content="300">
     <style>
         body {{
@@ -48,13 +57,11 @@ def generate_html(results, checked_time, all_healthy):
             margin: 20px auto;
             position: relative;
         }}
-        /* タイトルの邪魔にならないよう、カードの右上外側に配置 */
         .lang-switcher {{
             display: flex;
             justify-content: flex-end;
             margin-bottom: 12px;
         }}
-        /* 左右分割の楕円（ピル型）コンテナ */
         .pill {{
             display: inline-flex;
             background: #e0e4e8;
@@ -178,7 +185,7 @@ def generate_html(results, checked_time, all_healthy):
                 footerNote: "※このページは15分おきに自動更新されます"
             }},
             en: {{
-                title: "Bunsugi Cloud Service Status",
+                title: "Cloud Service Status",
                 bannerSuccess: "All services are operating normally",
                 bannerDanger: "Issues or connection errors detected",
                 statusOk: "Operational",

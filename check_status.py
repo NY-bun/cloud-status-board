@@ -38,7 +38,7 @@ def generate_html(results, checked_time, all_healthy):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Service Status</title>
+    <title>Bunsugi Cloud Service Status</title>
     <link rel="icon" href="{favicon_data}">
     <meta http-equiv="refresh" content="300">
     <style>
@@ -182,7 +182,7 @@ def generate_html(results, checked_time, all_healthy):
                 footerNote: "※このページは15分おきに自動更新されます"
             }},
             en: {{
-                title: "Cloud Service Status",
+                title: "Bunsugi Cloud Service Status",
                 bannerSuccess: "All services are operating normally",
                 bannerDanger: "Issues or connection errors detected",
                 statusOk: "Operational",

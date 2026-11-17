@@ -1,6 +1,7 @@
 import datetime
 import urllib.request
 import urllib.error
+import sys
 
 TARGETS = {
     "Outlook / Microsoft 365": "https://status.office365.com/",
@@ -14,12 +15,13 @@ def check_service(url):
             url, 
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         )
-        with urllib.request.urlopen(req, timeout=15) as response:
+        with urllib.request.urlopen(req, timeout=10) as response:
             if response.status == 200:
                 return "ok", True
             else:
                 return "error", False
     except Exception as e:
+        print(f"Warning: Failed to check {url} - {e}")
         return "error", False
 
 def generate_html(results, checked_time, all_healthy):
@@ -28,7 +30,6 @@ def generate_html(results, checked_time, all_healthy):
         items_js.append(f'{{name: "{name}", status: "{status_code}", url: "{url}"}}')
     items_str = "[" + ", ".join(items_js) + "]"
 
-    # Base64エンコード等を使わず、安全な絵文字ファビコンに切り替え
     favicon_emoji = "🟢" if all_healthy else "🔴"
     favicon_data = f"data:image/svg+xml,<svg xmlns='<unsafe_url>http://www.w3.org/2000/svg'</unsafe_url> viewBox='0 0 100 100'><text y='.9em' font-size='90'>{favicon_emoji}</text></svg>"
 
@@ -185,4 +186,77 @@ def generate_html(results, checked_time, all_healthy):
                 bannerSuccess: "All services are operating normally",
                 bannerDanger: "Issues or connection errors detected",
                 statusOk: "Operational",
-                statusError:
+                statusError: "Connection Error",
+                footerText: "Last checked",
+                footerNote: "*This page automatically refreshes every 15 minutes"
+            }}
+        }};
+
+        function setLanguage(lang) {{
+            document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+            const t = dict[lang] || dict.en;
+
+            document.getElementById('title').innerText = t.title;
+            
+            const banner = document.getElementById('banner');
+            banner.className = "banner " + (allHealthy ? "success" : "danger");
+            banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;
+
+            document.getElementById('footer-text').innerText = t.footerText;
+            document.getElementById('footer-note').innerText = t.footerNote;
+
+            const list = document.getElementById('service-list');
+            list.innerHTML = '';
+            
+            services.forEach(s => {{
+                const isOk = s.status === 'ok';
+                const badgeClass = isOk ? 'success' : 'danger';
+                const statusText = isOk ? t.statusOk : t.statusError;
+
+                const li = document.createElement('li');
+                li.className = 'service-item';
+                li.innerHTML = `
+                    <span class="service-name">${{s.name}}</span>
+                    <a href="${{s.url}}" target="_blank" rel="noopener noreferrer" class="badge-link">
+                        <span class="badge ${{badgeClass}}">${{statusText}}</span>
+                    </a>
+                `;
+                list.appendChild(li);
+            }});
+        }}
+
+        const userLang = navigator.language || navigator.userLanguage;
+        const initialLang = userLang.startsWith('ja') ? 'ja' : 'en';
+        setLanguage(initialLang);
+    </script>
+</body>
+</html>
+"""
+    return html_content
+
+def main():
+    try:
+        results = {}
+        all_healthy = True
+
+        for name, url in TARGETS.items():
+            status_code, is_ok = check_service(url)
+            results[name] = (status_code, is_ok, url)
+            if not is_ok:
+                all_healthy = False
+
+        jst = datetime.timezone(datetime.timedelta(hours=9))
+        checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
+
+        html_output = generate_html(results, checked_time, all_healthy)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_output)
+        print("index.html generated successfully.")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

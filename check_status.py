@@ -1,10 +1,7 @@
-import os
 import datetime
 import urllib.request
 import urllib.error
-import pytz
 
-# チェック対象のサービス定義
 TARGETS = {
     "Outlook / Microsoft 365": "https://status.office365.com/",
     "BLEND": "https://status.motivationworks.co.jp/",
@@ -12,7 +9,6 @@ TARGETS = {
 }
 
 def check_service(url):
-    """Webサイトの応答（HTTP 200）をチェック"""
     try:
         req = urllib.request.Request(
             url, 
@@ -27,7 +23,6 @@ def check_service(url):
         return f"接続エラー", "danger", False
 
 def generate_html(results, checked_time, all_healthy):
-    """スマホやPCで見やすいHTMLを生成"""
     status_banner_class = "success" if all_healthy else "danger"
     status_banner_text = "すべてのサービスは正常に稼働しています" if all_healthy else "一部のサービスに異常・接続エラーを検知しています"
 
@@ -36,8 +31,8 @@ def generate_html(results, checked_time, all_healthy):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文杉 クラウドサービス 稼働状況</title>
-    <meta http-equiv="refresh" content="300"> <!-- 5分ごとに自動リロード -->
+    <title>社内クラウドサービス 稼働ステータス</title>
+    <meta http-equiv="refresh" content="300">
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -110,7 +105,7 @@ def generate_html(results, checked_time, all_healthy):
 </head>
 <body>
     <div class="container">
-        <h1>文杉 クラウドサービス 稼働状況</h1>
+        <h1>🛠️ クラウドサービス ステータス</h1>
         <div class="banner {status_banner_class}">
             {status_banner_text}
         </div>
@@ -149,11 +144,10 @@ def main():
         if not is_ok:
             all_healthy = False
 
-    # 日本時間の現在時刻を取得
-    jst = pytz.timezone('Asia/Tokyo')
+    # JST (UTC+9)
+    jst = datetime.timezone(datetime.timedelta(hours=9))
     checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
 
-    # index.htmlを出力
     html_output = generate_html(results, checked_time, all_healthy)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_output)

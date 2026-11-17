@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Service Status</title>
+    <title>Bunsugi Cloud Service Status</title>
     <meta http-equiv="refresh" content="300">
     <style>
         body {
@@ -13,44 +13,56 @@
             margin: 0;
             padding: 20px;
         }
-        .container {
+        .wrapper {
             max-width: 600px;
-            margin: 40px auto;
+            margin: 20px auto;
+            position: relative;
+        }
+        /* タイトルの邪魔にならないよう、カードの右上外側に配置 */
+        .lang-switcher {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+        /* 左右分割の楕円（ピル型）コンテナ */
+        .pill {
+            display: inline-flex;
+            background: #e0e4e8;
+            border-radius: 50px;
+            padding: 3px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+        .lang-btn.active {
+            background: #ffffff;
+            color: #2c3e50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .container {
             background: #fff;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            position: relative;
-        }
-        .lang-switcher {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            display: flex;
-            gap: 5px;
-        }
-        .lang-btn {
-            background: #eee;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            color: #555;
-        }
-        .lang-btn.active {
-            background: #3498db;
-            color: white;
         }
         h1 {
-            font-size: 20px;
+            font-size: 22px;
             margin-top: 0;
+            margin-bottom: 20px;
             color: #2c3e50;
             border-bottom: 2px solid #eee;
-            padding-bottom: 12px;
-            padding-right: 100px;
+            padding-bottom: 15px;
             text-align: center;
+            letter-spacing: 0.5px;
         }
         .banner {
             padding: 15px;
@@ -80,7 +92,7 @@
         }
         .badge {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: bold;
@@ -100,20 +112,24 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="wrapper">
         <div class="lang-switcher">
-            <button class="lang-btn" id="btn-ja" onclick="setLanguage('ja')">日本語</button>
-            <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">English</button>
+            <div class="pill">
+                <button class="lang-btn" id="btn-ja" onclick="setLanguage('ja')">日本語</button>
+                <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">English</button>
+            </div>
         </div>
         
-        <h1 id="title"></h1>
-        <div id="banner" class="banner"></div>
-        
-        <ul class="service-list" id="service-list"></ul>
-        
-        <div class="footer">
-            <span id="footer-text"></span>: 2026-11-17 14:18:55 (JST)<br>
-            <span id="footer-note"></span>
+        <div class="container">
+            <h1 id="title"></h1>
+            <div id="banner" class="banner"></div>
+            
+            <ul class="service-list" id="service-list"></ul>
+            
+            <div class="footer">
+                <span id="footer-text"></span>: 2026-11-17 14:25:05 (JST)<br>
+                <span id="footer-note"></span>
+            </div>
         </div>
     </div>
 
@@ -132,7 +148,7 @@
                 footerNote: "※このページは15分おきに自動更新されます"
             },
             en: {
-                title: "🛠️ Cloud Service Status",
+                title: "Cloud Service Status",
                 bannerSuccess: "All services are operating normally",
                 bannerDanger: "Issues or connection errors detected",
                 statusOk: "Operational",
@@ -143,13 +159,11 @@
         };
 
         function setLanguage(lang) {
-            // ボタンのアクティブ状態更新
             document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
             const t = dict[lang] || dict.en;
 
-            // テキストの適用
             document.getElementById('title').innerText = t.title;
             
             const banner = document.getElementById('banner');
@@ -159,7 +173,6 @@
             document.getElementById('footer-text').innerText = t.footerText;
             document.getElementById('footer-note').innerText = t.footerNote;
 
-            // リストの生成
             const list = document.getElementById('service-list');
             list.innerHTML = '';
             
@@ -180,7 +193,6 @@
             });
         }
 
-        // 初期化: ブラウザ言語判定 (jaが含まれれば日本語、それ以外は英語)
         const userLang = navigator.language || navigator.userLanguage;
         const initialLang = userLang.startsWith('ja') ? 'ja' : 'en';
         setLanguage(initialLang);

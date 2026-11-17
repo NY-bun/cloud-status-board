@@ -85,4 +85,60 @@ def generate_html(results, checked_time, all_healthy):
     h += 'const services = ' + items_str + ';\n'
     h += 'const dict = {\n'
     h += '  ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは15分おきに自動更新されます" },\n'
-    h += '
+    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 15 minutes" }\n'
+    h += '};\n'
+    h += 'function setLanguage(lang) {\n'
+    h += '  document.getElementById("btn-ja").classList.toggle("active", lang === "ja");\n'
+    h += '  document.getElementById("btn-en").classList.toggle("active", lang === "en");\n'
+    h += '  const t = dict[lang] || dict.en;\n'
+    h += '  document.getElementById("title").innerText = t.title;\n'
+    h += '  const banner = document.getElementById("banner");\n'
+    h += '  banner.className = "banner " + (allHealthy ? "success" : "danger");\n'
+    h += '  banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;\n'
+    h += '  document.getElementById("footer-text").innerText = t.footerText;\n'
+    h += '  document.getElementById("footer-note").innerText = t.footerNote;\n'
+    h += '  const list = document.getElementById("service-list");\n'
+    h += '  list.innerHTML = "";\n'
+    h += '  services.forEach(s => {\n'
+    h += '    const isOk = s.status === "ok";\n'
+    h += '    const badgeClass = isOk ? "success" : "danger";\n'
+    h += '    const statusText = isOk ? t.statusOk : t.statusError;\n'
+    h += '    let displayName = s.name;\n'
+    h += '    if (lang === "en" && displayName === "ロイロノート") { displayName = "LoiLoNote"; }\n'
+    h += '    const li = document.createElement("li");\n'
+    h += '    li.className = "service-item";\n'
+    h += '    li.innerHTML = \'<span class="service-name">\' + displayName + \'</span><a href="\' + s.url + \'" target="_blank" rel="noopener noreferrer" class="badge-link"><span class="badge \' + badgeClass + \'">\' + statusText + \'</span></a>\';\n'
+    h += '    list.appendChild(li);\n'
+    h += '  });\n'
+    h += '}\n'
+    h += 'const userLang = navigator.language || navigator.userLanguage;\n'
+    h += 'const initialLang = userLang.startsWith("ja") ? "ja" : "en";\n'
+    h += 'setLanguage(initialLang);\n'
+    h += '</script>\n</body>\n</html>\n'
+
+    return h
+
+def main():
+    try:
+        results = {}
+        all_healthy = True
+
+        for name, url in TARGETS.items():
+            status_code, is_ok = check_service(url)
+            results[name] = (status_code, is_ok, url)
+            if not is_ok:
+                all_healthy = False
+
+        jst = datetime.timezone(datetime.timedelta(hours=9))
+        checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
+
+        html_output = generate_html(results, checked_time, all_healthy)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_output)
+        print("index.html generated successfully.")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

@@ -126,7 +126,7 @@
             <ul class="service-list" id="service-list"></ul>
             
             <div class="footer">
-                <span id="footer-text"></span>: 2026-11-17 15:11:16 (JST)<br>
+                <span id="footer-text"></span>: 2026-11-17 15:23:46 (JST)<br>
                 <span id="footer-note"></span>
             </div>
         </div>
@@ -134,7 +134,7 @@
 
     <script>
         const allHealthy = true;
-        const services = [{name: "Outlook / Microsoft 365", status: "ok", url: "https://status.office365.com/"}, {name: "BLEND", status: "ok", url: "https://status.motivationworks.co.jp/"}, {name: "ロイロノート", status: "ok", url: "https://status.loilonote.app/ja"}];
+        const services = [{"name": "Outlook / Microsoft 365", "status": "ok", "url": "https://status.office365.com/"}, {"name": "BLEND", "status": "ok", "url": "https://status.motivationworks.co.jp/"}, {"name": "ロイロノート", "status": "ok", "url": "https://status.loilonote.app/ja"}, {"name": "Zoom", "status": "ok", "url": "https://www.zoomstatus.com/"}, {"name": "L-Gate", "status": "ok", "url": "https://l-gate-status.info/"}, {"name": "Canva", "status": "ok", "url": "https://www.canvastatus.com/"}];
 
         const dict = {
             ja: {
@@ -180,10 +180,15 @@
                 const badgeClass = isOk ? 'success' : 'danger';
                 const statusText = isOk ? t.statusOk : t.statusError;
 
+                let displayName = s.name;
+                if (lang === 'en' && displayName === 'ロイロノート') {
+                    displayName = 'LoiLoNote';
+                }
+
                 const li = document.createElement('li');
                 li.className = 'service-item';
                 li.innerHTML = `
-                    <span class="service-name">${s.name}</span>
+                    <span class="service-name">${displayName}</span>
                     <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="badge-link">
                         <span class="badge ${badgeClass}">${statusText}</span>
                     </a>

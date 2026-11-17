@@ -31,7 +31,7 @@ def generate_html(results, checked_time, all_healthy):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社内クラウドサービス 稼働ステータス</title>
+    <title>文杉 クラウドサービス 稼働状況</title>
     <meta http-equiv="refresh" content="300">
     <style>
         body {{
@@ -55,6 +55,7 @@ def generate_html(results, checked_time, all_healthy):
             color: #2c3e50;
             border-bottom: 2px solid #eee;
             padding-bottom: 12px;
+            text-align: center;
         }}
         .banner {{
             padding: 15px;
@@ -105,7 +106,7 @@ def generate_html(results, checked_time, all_healthy):
 </head>
 <body>
     <div class="container">
-        <h1>🛠️ クラウドサービス ステータス</h1>
+        <h1>文杉 クラウドサービス 稼働状況</h1>
         <div class="banner {status_banner_class}">
             {status_banner_text}
         </div>

@@ -31,13 +31,18 @@ jobs:
       - name: Run status check script
         run: python check_status.py
 
-      # ステータス変更をGitに記録（履歴を残したい場合。不要ならこのステップ自体を削除してもOK）
+      # 毎回必ずタイムスタンプを更新して強制的にコミット・プッシュする
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 差分がなくても必ず更新されるファイルを作成
+          date -u +"%Y-%m-%d %H:%M:%SZ" > last_updated.txt
+          
           git add -A
-          git diff --staged --quiet || git commit -m "Update status page [skip ci]"
+          git commit -m "Update status page [skip ci]"
+          git push
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

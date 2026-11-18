@@ -1,9 +1,9 @@
 name: Deploy Cloud Status Page
 
 on:
+  # 混雑する0, 15, 30, 45分を避け、2, 17, 32, 47分にずらして15分おきに実行
   schedule:
-    # 15分おきに実行 (*/15 * * * *)
-    - cron: '*/15 * * * *'
+    - cron: '2,17,32,47 * * * *'
   # 手動でも実行可能にする
   workflow_dispatch:
 
@@ -31,12 +31,13 @@ jobs:
       - name: Run status check script
         run: python check_status.py
 
+      # ステータス変更をGitに記録（履歴を残したい場合。不要ならこのステップ自体を削除してもOK）
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          git diff --staged --quiet || (git commit -m "Update status" && git push)
+          git diff --staged --quiet || git commit -m "Update status page [skip ci]"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

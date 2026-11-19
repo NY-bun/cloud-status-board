@@ -9,8 +9,7 @@ TARGETS = {
     "ロイロノート": "https://status.loilonote.app/ja",
     "Canva": "https://www.canvastatus.com/",
     "Zoom": "https://www.zoomstatus.com/",
-    "L-Gate": "https://l-gate-status.info/",
-    "AWS": "https://health.aws.amazon.com/health/status"
+    "L-Gate": "https://l-gate-status.info/"
 }
 
 def check_service(url):

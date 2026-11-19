@@ -10,7 +10,7 @@ TARGETS = {
     "Canva": "https://www.canvastatus.com/",
     "Zoom": "https://www.zoomstatus.com/",
     "L-Gate": "https://l-gate-status.info/",
-    "https://health.aws.amazon.com/health/status"
+    "AWS": "https://health.aws.amazon.com/health/status"
 }
 
 def check_service(url):

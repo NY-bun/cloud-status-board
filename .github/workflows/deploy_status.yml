@@ -1,9 +1,6 @@
 name: Deploy Cloud Status Page
 
 on:
-  # 混雑する0, 15, 30, 45分を避け、2, 17, 32, 47分にずらして15分おきに実行
-  schedule:
-    - cron: '2,17,32,47 * * * *'
   # 手動でも実行可能にする
   workflow_dispatch:
 

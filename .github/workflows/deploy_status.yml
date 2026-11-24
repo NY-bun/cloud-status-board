@@ -1,10 +1,14 @@
 name: Deploy Cloud Status Page
 
 on:
-  # 手動でも実行可能にする
+  schedule:
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
-# GitHub Pagesへのデプロイ権限とリポジトリ書き込み権限を設定
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pages: write
@@ -13,6 +17,7 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,33 +27,36 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (pytz)
-        run: pip install pytz
+      - name: Install dependencies
+        run: |
+          pip install pytz
 
       - name: Run status check script
-        run: python check_status.py
+        run: |
+          python check_status.py
 
-      # 毎回必ずタイムスタンプを更新して強制的にコミット・プッシュする
       - name: Commit changes
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          # 差分がなくても必ず更新されるファイルを作成
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           date -u +"%Y-%m-%d %H:%M:%SZ" > last_updated.txt
-          
+
           git add -A
-          git commit -m "Update status page [skip ci]"
-          git push
+          git commit -m "Update status page [skip ci]" || true
+          git push || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Verify files
+        run: |
+          echo "=== FILES ==="
+          find . -maxdepth 2 -type f | sort
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: .
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - 

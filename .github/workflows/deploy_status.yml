@@ -28,12 +28,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install pytz
+        run: pip install pytz
 
       - name: Run status check script
-        run: |
-          python check_status.py
+        run: python check_status.py
 
       - name: Commit changes
         run: |
@@ -59,4 +57,6 @@ jobs:
         with:
           path: .
 
-      - 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

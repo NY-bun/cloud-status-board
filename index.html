@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bunsugi Cloud Service Status</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='<unsafe_url>http://www.w3.org/2000/svg'</unsafe_url> viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='<unsafe_url>http://www.w3.org/2000/svg'</unsafe_url> viewBox='0 0 100 100'><text y='.9em' font-size='90'>🟢</text></svg>">
 <meta http-equiv="refresh" content="300">
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
@@ -41,12 +41,12 @@ h1 { font-size: 22px; margin-top: 0; margin-bottom: 20px; color: #2c3e50; border
 <div id="banner" class="banner"></div>
 <ul class="service-list" id="service-list"></ul>
 <div class="footer">
-<span id="footer-text"></span>: 2026-11-25 21:15:48 (JST)<br>
+<span id="footer-text"></span>: 2026-11-25 21:20:36 (JST)<br>
 <span id="footer-note"></span>
 </div></div></div>
 <script>
-const allHealthy = false;
-const services = [{"name": "Outlook / Microsoft 365", "status": "ok", "url": "https://status.office365.com/"}, {"name": "BLEND", "status": "error", "url": "https://status.motivationworks.co.jp/"}, {"name": "ロイロノート", "status": "ok", "url": "https://status.loilonote.app/ja"}, {"name": "Canva", "status": "ok", "url": "https://www.canvastatus.com/"}, {"name": "Zoom", "status": "ok", "url": "https://www.zoomstatus.com/"}, {"name": "L-Gate", "status": "ok", "url": "https://l-gate-status.info/"}];
+const allHealthy = true;
+const services = [{"name": "Outlook / Microsoft 365", "status": "ok", "url": "https://status.office365.com/"}, {"name": "BLEND", "status": "ok", "url": "https://status.motivationworks.co.jp/"}, {"name": "ロイロノート", "status": "ok", "url": "https://status.loilonote.app/ja"}, {"name": "Canva", "status": "ok", "url": "https://www.canvastatus.com/"}, {"name": "Zoom", "status": "ok", "url": "https://www.zoomstatus.com/"}, {"name": "L-Gate", "status": "ok", "url": "https://l-gate-status.info/"}];
 const dict = {
   ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは10分おきに自動更新されます" },
   en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 15 minutes" }

@@ -187,4 +187,371 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(10px, 1.3vw, 20
+  gap: clamp(10px, 1.3vw, 20px);
+}
+.weather-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 50px;
+  padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px);
+  font-size: clamp(14px, 1.3vw, 22px);
+  font-weight: 600;
+  color: #f1f5f9;
+  font-variant-numeric: tabular-nums;
+}
+.weather-label {
+  color: #94a3b8;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+.banner {
+  padding: clamp(14px, 1.8vw, 26px);
+  border-radius: clamp(10px, 1vw, 16px);
+  font-size: clamp(15px, 1.7vw, 28px);
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: clamp(20px, 2.5vw, 36px);
+  border: 1px solid transparent;
+}
+.banner.success {
+  background-color: rgba(16, 185, 129, 0.14);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.banner.danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.service-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+@media (min-width: 900px) {
+  .service-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid #334155;
+  border-radius: clamp(10px, 1vw, 16px);
+  padding: clamp(14px, 1.8vw, 26px) clamp(16px, 2.2vw, 32px);
+}
+.service-name {
+  font-weight: 600;
+  font-size: clamp(15px, 1.6vw, 26px);
+  color: #f1f5f9;
+  line-height: 1.3;
+}
+.badge-link {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.badge {
+  display: inline-block;
+  padding: clamp(7px, 0.9vw, 14px) clamp(14px, 1.6vw, 26px);
+  border-radius: 50px;
+  font-size: clamp(13px, 1.3vw, 22px);
+  font-weight: bold;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.badge:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.badge.success {
+  background-color: #10b981;
+  color: #052e16;
+}
+.badge.danger {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+.footer {
+  margin-top: clamp(20px, 2.5vw, 36px);
+  font-size: clamp(12px, 1.1vw, 18px);
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.7;
+}
+</style>
+</head>
+"""
+
+BODY_TEMPLATE = """<body>
+<div class="wrapper">
+  <div class="container">
+    <h1 id="title"></h1>
+    <div class="info-bar" id="info-bar">
+      <div class="datetime-group">
+        <span class="date-text" id="date-text"></span>
+        <span class="clock-text" id="clock-text"></span>
+      </div>
+      <div class="weather-group">
+        <span class="weather-pill"><span id="weather-icon"></span><span id="weather-cond"></span></span>
+        <span class="weather-pill"><span class="weather-label" id="temp-label"></span><span id="weather-temp"></span></span>
+        <span class="weather-pill"><span class="weather-label" id="precip-label"></span><span id="weather-precip"></span></span>
+      </div>
+    </div>
+    <div id="banner" class="banner"></div>
+    <ul class="service-list" id="service-list"></ul>
+    <div class="footer">
+      <span id="footer-text"></span>: __CHECKED_TIME__ (JST)<br>
+      <span id="footer-note"></span>
+    </div>
+  </div>
+</div>
+
+<div class="lang-fab" id="lang-fab" role="group" aria-label="Language switcher">
+  <button type="button" class="flag-btn" id="btn-ja" onclick="setLanguage('ja')" aria-label="日本語" title="日本語">
+    __JP_FLAG_SVG__
+  </button>
+  <button type="button" class="flag-btn" id="btn-en" onclick="setLanguage('en')" aria-label="English" title="English">
+    __US_FLAG_SVG__
+  </button>
+</div>
+"""
+
+SCRIPT_TEMPLATE = """<script>
+const allHealthy = __ALL_HEALTHY__;
+const services = __SERVICES_JSON__;
+const weather = __WEATHER_JSON__;
+let currentLang = "ja";
+
+const dict = {
+  ja: {
+    title: "文杉クラウドサービス稼働状況",
+    bannerSuccess: "すべてのサービスは正常に稼働しています",
+    bannerDanger: "一部のサービスに異常・接続エラーを検知しています",
+    statusOk: "正常稼働中",
+    statusError: "接続エラー",
+    footerText: "最終確認日時",
+    footerNote: "※このページは10分おきに自動更新されます",
+    tempLabel: "気温",
+    precipLabel: "降水確率",
+    weekdays: ["日", "月", "火", "水", "木", "金", "土"]
+  },
+  en: {
+    title: "Bunsugi Cloud Service Status",
+    bannerSuccess: "All services are operating normally",
+    bannerDanger: "Issues or connection errors detected",
+    statusOk: "Operational",
+    statusError: "Connection Error",
+    footerText: "Last checked",
+    footerNote: "*This page automatically refreshes every 10 minutes",
+    tempLabel: "Temp",
+    precipLabel: "Precip",
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  }
+};
+
+function updateDateTime() {
+  const now = new Date();
+  const t = dict[currentLang] || dict.en;
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  const w = t.weekdays[now.getDay()];
+  const dateEl = document.getElementById("date-text");
+  const clockEl = document.getElementById("clock-text");
+  if (dateEl) {
+    dateEl.innerText = currentLang === "ja"
+      ? (y + "年" + m + "月" + d + "日 (" + w + ")")
+      : (w + ", " + now.toLocaleString("en-US", { month: "short" }) + " " + d + ", " + y);
+  }
+  if (clockEl) {
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    clockEl.innerText = hh + ":" + mm + ":" + ss;
+  }
+}
+
+function updateWeather() {
+  const t = dict[currentLang] || dict.en;
+  document.getElementById("weather-icon").innerText = weather.icon || "🌡️";
+  document.getElementById("weather-cond").innerText = currentLang === "ja" ? weather.ja : weather.en;
+  document.getElementById("temp-label").innerText = t.tempLabel;
+  document.getElementById("weather-temp").innerText = weather.temp;
+  document.getElementById("precip-label").innerText = t.precipLabel;
+  document.getElementById("weather-precip").innerText = weather.precip;
+}
+
+function setLanguage(lang) {
+  currentLang = (lang === "ja" || lang === "en") ? lang : "en";
+  document.getElementById("btn-ja").classList.toggle("active", currentLang === "ja");
+  document.getElementById("btn-en").classList.toggle("active", currentLang === "en");
+  const t = dict[currentLang];
+  document.getElementById("title").innerText = t.title;
+  updateDateTime();
+  updateWeather();
+  const banner = document.getElementById("banner");
+  banner.className = "banner " + (allHealthy ? "success" : "danger");
+  banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;
+  document.getElementById("footer-text").innerText = t.footerText;
+  document.getElementById("footer-note").innerText = t.footerNote;
+  const list = document.getElementById("service-list");
+  list.innerHTML = "";
+  services.forEach(s => {
+    const isOk = s.status === "ok";
+    const badgeClass = isOk ? "success" : "danger";
+    const statusText = isOk ? t.statusOk : t.statusError;
+    let displayName = s.name;
+    if (currentLang === "en" && displayName === "ロイロノート") {
+      displayName = "LoiLoNote";
+    }
+    const li = document.createElement("li");
+    li.className = "service-item";
+    li.innerHTML = '<span class="service-name">' + displayName + '</span><a href="' + s.url + '" target="_blank" rel="noopener noreferrer" class="badge-link"><span class="badge ' + badgeClass + '">' + statusText + '</span></a>';
+    list.appendChild(li);
+  });
+}
+
+const userLang = navigator.language || navigator.userLanguage;
+const initialLang = userLang.startsWith("ja") ? "ja" : "en";
+setLanguage(initialLang);
+setInterval(updateDateTime, 1000);
+</script>
+</body>
+</html>
+"""
+
+def check_service(url):
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                return "ok", True
+            else:
+                return "error", False
+    except Exception as e:
+        print(f"Warning: Failed to check {url} - {e}")
+        return "error", False
+
+def fetch_weather(lat=LATITUDE, lon=LONGITUDE):
+    url = (
+        f"https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
+        f"&current=temperature_2m,weather_code"
+        f"&hourly=precipitation_probability"
+        f"&timezone=Asia%2FTokyo&forecast_days=1"
+    )
+    fallback = {
+        "available": False,
+        "icon": "🌡️",
+        "ja": "取得不可",
+        "en": "N/A",
+        "temp": "--",
+        "precip": "--"
+    }
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        current = data.get("current", {})
+        code = current.get("weather_code")
+        temp_val = current.get("temperature_2m")
+        temp_str = f"{round(temp_val, 1)}°C" if isinstance(temp_val, (int, float)) else "--"
+
+        hourly = data.get("hourly", {})
+        times = hourly.get("time", [])
+        probs = hourly.get("precipitation_probability", [])
+        cur_time_str = current.get("time", "")
+        cur_hour_prefix = cur_time_str[:13] if len(cur_time_str) >= 13 else ""
+
+        precip_str = "--"
+        if cur_hour_prefix and len(times) == len(probs):
+            for t_str, p_val in zip(times, probs):
+                if t_str.startswith(cur_hour_prefix) and p_val is not None:
+                    precip_str = f"{p_val}%"
+                    break
+        if precip_str == "--" and probs:
+            first_prob = next((p for p in probs if p is not None), None)
+            if first_prob is not None:
+                precip_str = f"{first_prob}%"
+
+        ja_label, en_label, icon = WMO_WEATHER_LABELS.get(
+            code, ("その他", "Other", "🌡️")
+        )
+        return {
+            "available": True,
+            "icon": icon,
+            "ja": ja_label,
+            "en": en_label,
+            "temp": temp_str,
+            "precip": precip_str
+        }
+    except Exception as e:
+        print(f"Warning: Failed to fetch weather - {e}")
+        return fallback
+
+def generate_html(results, checked_time, all_healthy, weather):
+    items_js = []
+    for name, (status_code, is_ok, url) in results.items():
+        escaped_name = name.replace('"', '\\"')
+        items_js.append('{"name": "' + escaped_name + '", "status": "' + status_code + '", "url": "' + url + '"}')
+    items_str = "[" + ", ".join(items_js) + "]"
+    weather_json = json.dumps(weather, ensure_ascii=False)
+
+    favicon_emoji = "🟢" if all_healthy else "🔴"
+    favicon_data = (
+        "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+        "<text y='.9em' font-size='90'>" + favicon_emoji + "</text></svg>"
+    )
+
+    html = HEAD_TEMPLATE + CSS_TEMPLATE + BODY_TEMPLATE + SCRIPT_TEMPLATE
+    html = html.replace("__FAVICON_DATA__", favicon_data)
+    html = html.replace("__CHECKED_TIME__", checked_time)
+    html = html.replace("__JP_FLAG_SVG__", JP_FLAG_SVG)
+    html = html.replace("__US_FLAG_SVG__", US_FLAG_SVG)
+    html = html.replace("__ALL_HEALTHY__", "true" if all_healthy else "false")
+    html = html.replace("__SERVICES_JSON__", items_str)
+    html = html.replace("__WEATHER_JSON__", weather_json)
+    return html
+
+def main():
+    try:
+        results = {}
+        all_healthy = True
+
+        for name, url in TARGETS.items():
+            status_code, is_ok = check_service(url)
+            results[name] = (status_code, is_ok, url)
+            if not is_ok:
+                all_healthy = False
+
+        weather = fetch_weather()
+
+        jst = datetime.timezone(datetime.timedelta(hours=9))
+        checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
+
+        html_output = generate_html(results, checked_time, all_healthy, weather)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_output)
+        print("index.html generated successfully.")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

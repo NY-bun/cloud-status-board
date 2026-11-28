@@ -187,31 +187,4 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(10px, 1.3vw, 20px);
-}
-.weather-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 50px;
-  padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px);
-  font-size: clamp(14px, 1.3vw, 22px);
-  font-weight: 600;
-  color: #f1f5f9;
-  font-variant-numeric: tabular-nums;
-}
-.weather-label {
-  color: #94a3b8;
-  font-size: 0.85em;
-  font-weight: 500;
-}
-.banner {
-  padding: clamp(14px, 1.8vw, 26px);
-  border-radius: clamp(10px, 1vw, 16px);
-  font-size: clamp(15px, 1.7vw, 28px);
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: clamp(20px, 2.5vw, 36px);
-  border: 1
+  gap: clamp(10px, 1.3vw, 20

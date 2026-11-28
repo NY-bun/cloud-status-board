@@ -85,7 +85,7 @@ def generate_html(results, checked_time, all_healthy):
     h += 'const services = ' + items_str + ';\n'
     h += 'const dict = {\n'
     h += '  ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは10分おきに自動更新されます" },\n'
-    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 15 minutes" }\n'
+    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 10 minutes" }\n'
     h += '};\n'
     h += 'function setLanguage(lang) {\n'
     h += '  document.getElementById("btn-ja").classList.toggle("active", lang === "ja");\n'

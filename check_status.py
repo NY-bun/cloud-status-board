@@ -135,13 +135,12 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += '<meta http-equiv="refresh" content="300">\n'
     h += '<style>\n'
     h += '* { box-sizing: border-box; }\n'
-    h += 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; padding: clamp(12px, 2.5vw, 32px); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }\n'
+    h += 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; padding: clamp(12px, 2.5vw, 32px); padding-bottom: clamp(84px, 8vw, 120px); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }\n'
     h += '.wrapper { width: 100%; max-width: 1440px; margin: 0 auto; }\n'
-    h += '.lang-switcher { display: flex; justify-content: flex-end; margin-bottom: clamp(10px, 1.5vw, 18px); }\n'
-    h += '.pill { display: inline-flex; background: #1e293b; border: 1px solid #334155; border-radius: 50px; padding: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }\n'
-    h += '.lang-btn { background: transparent; border: none; padding: clamp(6px, 0.8vw, 12px) clamp(16px, 1.8vw, 28px); border-radius: 50px; cursor: pointer; font-size: clamp(13px, 1.2vw, 20px); font-weight: 600; color: #94a3b8; transition: all 0.2s ease; }\n'
-    h += '.lang-btn:hover { color: #f8fafc; }\n'
-    h += '.lang-btn.active { background: #334155; color: #f8fafc; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }\n'
+    h += '.lang-fab { position: fixed; right: clamp(16px, 2.2vw, 32px); bottom: clamp(16px, 2.2vw, 32px); z-index: 100; display: inline-flex; align-items: center; gap: clamp(8px, 0.8vw, 12px); background: rgba(30, 41, 59, 0.92); backdrop-filter: blur(8px); border: 1px solid #334155; border-radius: 999px; padding: clamp(6px, 0.6vw, 10px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }\n'
+    h += '.flag-btn { width: clamp(40px, 3.6vw, 56px); height: clamp(40px, 3.6vw, 56px); border-radius: 50%; border: 2px solid transparent; background: rgba(15, 23, 42, 0.65); color: #94a3b8; font-size: clamp(20px, 1.9vw, 30px); line-height: 1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.55; transition: all 0.2s ease; padding: 0; }\n'
+    h += '.flag-btn:hover { opacity: 0.9; transform: scale(1.06); }\n'
+    h += '.flag-btn.active { opacity: 1; background: #334155; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25); transform: scale(1.05); }\n'
     h += '.container { background: #1e293b; border: 1px solid #334155; padding: clamp(20px, 3.2vw, 48px); border-radius: clamp(14px, 1.5vw, 24px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }\n'
     h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 28px); color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: clamp(12px, 1.5vw, 22px); text-align: center; letter-spacing: 0.5px; }\n'
     h += '.info-bar { display: none; }\n'
@@ -153,140 +152,4 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += '.clock-text { font-size: clamp(22px, 2.2vw, 38px); font-weight: 700; color: #f8fafc; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }\n'
     h += '.weather-group { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(10px, 1.3vw, 20px); }\n'
     h += '.weather-pill { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 50px; padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px); font-size: clamp(14px, 1.3vw, 22px); font-weight: 600; color: #f1f5f9; font-variant-numeric: tabular-nums; }\n'
-    h += '.weather-label { color: #94a3b8; font-size: 0.85em; font-weight: 500; }\n'
-    h += '.banner { padding: clamp(14px, 1.8vw, 26px); border-radius: clamp(10px, 1vw, 16px); font-size: clamp(15px, 1.7vw, 28px); font-weight: bold; text-align: center; margin-bottom: clamp(20px, 2.5vw, 36px); border: 1px solid transparent; }\n'
-    h += '.banner.success { background-color: rgba(16, 185, 129, 0.14); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35); }\n'
-    h += '.banner.danger { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }\n'
-    h += '.service-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: clamp(10px, 1.4vw, 20px); }\n'
-    h += '@media (min-width: 900px) { .service-list { grid-template-columns: repeat(2, 1fr); } }\n'
-    h += '.service-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(15, 23, 42, 0.55); border: 1px solid #334155; border-radius: clamp(10px, 1vw, 16px); padding: clamp(14px, 1.8vw, 26px) clamp(16px, 2.2vw, 32px); }\n'
-    h += '.service-name { font-weight: 600; font-size: clamp(15px, 1.6vw, 26px); color: #f1f5f9; line-height: 1.3; }\n'
-    h += '.badge-link { text-decoration: none; flex-shrink: 0; }\n'
-    h += '.badge { display: inline-block; padding: clamp(7px, 0.9vw, 14px) clamp(14px, 1.6vw, 26px); border-radius: 50px; font-size: clamp(13px, 1.3vw, 22px); font-weight: bold; white-space: nowrap; transition: opacity 0.2s, transform 0.15s; }\n'
-    h += '.badge:hover { opacity: 0.9; transform: translateY(-1px); }\n'
-    h += '.badge.success { background-color: #10b981; color: #052e16; }\n'
-    h += '.badge.danger { background-color: #ef4444; color: #ffffff; }\n'
-    h += '.footer { margin-top: clamp(20px, 2.5vw, 36px); font-size: clamp(12px, 1.1vw, 18px); color: #94a3b8; text-align: center; line-height: 1.7; }\n'
-    h += '</style>\n</head>\n<body>\n'
-    h += '<div class="wrapper">\n'
-    h += '<div class="lang-switcher"><div class="pill">\n'
-    h += '<button class="lang-btn" id="btn-ja" onclick="setLanguage(\'ja\')">日本語</button>\n'
-    h += '<button class="lang-btn" id="btn-en" onclick="setLanguage(\'en\')">English</button>\n'
-    h += '</div></div>\n'
-    h += '<div class="container">\n'
-    h += '<h1 id="title"></h1>\n'
-    h += '<div class="info-bar" id="info-bar">\n'
-    h += '  <div class="datetime-group">\n'
-    h += '    <span class="date-text" id="date-text"></span>\n'
-    h += '    <span class="clock-text" id="clock-text"></span>\n'
-    h += '  </div>\n'
-    h += '  <div class="weather-group">\n'
-    h += '    <span class="weather-pill"><span id="weather-icon"></span><span id="weather-cond"></span></span>\n'
-    h += '    <span class="weather-pill"><span class="weather-label" id="temp-label"></span><span id="weather-temp"></span></span>\n'
-    h += '    <span class="weather-pill"><span class="weather-label" id="precip-label"></span><span id="weather-precip"></span></span>\n'
-    h += '  </div>\n'
-    h += '</div>\n'
-    h += '<div id="banner" class="banner"></div>\n'
-    h += '<ul class="service-list" id="service-list"></ul>\n'
-    h += '<div class="footer">\n'
-    h += '<span id="footer-text"></span>: ' + checked_time + ' (JST)<br>\n'
-    h += '<span id="footer-note"></span>\n'
-    h += '</div></div></div>\n'
-    h += '<script>\n'
-    h += 'const allHealthy = ' + ("true" if all_healthy else "false") + ';\n'
-    h += 'const services = ' + items_str + ';\n'
-    h += 'const weather = ' + weather_json + ';\n'
-    h += 'let currentLang = "ja";\n'
-    h += 'const dict = {\n'
-    h += '  ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは10分おきに自動更新されます", tempLabel: "気温", precipLabel: "降水確率", weekdays: ["日", "月", "火", "水", "木", "金", "土"] },\n'
-    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 10 minutes", tempLabel: "Temp", precipLabel: "Precip", weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] }\n'
-    h += '};\n'
-    h += 'function updateDateTime() {\n'
-    h += '  const now = new Date();\n'
-    h += '  const t = dict[currentLang] || dict.en;\n'
-    h += '  const y = now.getFullYear();\n'
-    h += '  const m = now.getMonth() + 1;\n'
-    h += '  const d = now.getDate();\n'
-    h += '  const w = t.weekdays[now.getDay()];\n'
-    h += '  const dateEl = document.getElementById("date-text");\n'
-    h += '  const clockEl = document.getElementById("clock-text");\n'
-    h += '  if (dateEl) {\n'
-    h += '    dateEl.innerText = currentLang === "ja" ? (y + "年" + m + "月" + d + "日 (" + w + ")") : (w + ", " + now.toLocaleString("en-US", { month: "short" }) + " " + d + ", " + y);\n'
-    h += '  }\n'
-    h += '  if (clockEl) {\n'
-    h += '    const hh = String(now.getHours()).padStart(2, "0");\n'
-    h += '    const mm = String(now.getMinutes()).padStart(2, "0");\n'
-    h += '    const ss = String(now.getSeconds()).padStart(2, "0");\n'
-    h += '    clockEl.innerText = hh + ":" + mm + ":" + ss;\n'
-    h += '  }\n'
-    h += '}\n'
-    h += 'function updateWeather() {\n'
-    h += '  const t = dict[currentLang] || dict.en;\n'
-    h += '  document.getElementById("weather-icon").innerText = weather.icon || "🌡️";\n'
-    h += '  document.getElementById("weather-cond").innerText = currentLang === "ja" ? weather.ja : weather.en;\n'
-    h += '  document.getElementById("temp-label").innerText = t.tempLabel;\n'
-    h += '  document.getElementById("weather-temp").innerText = weather.temp;\n'
-    h += '  document.getElementById("precip-label").innerText = t.precipLabel;\n'
-    h += '  document.getElementById("weather-precip").innerText = weather.precip;\n'
-    h += '}\n'
-    h += 'function setLanguage(lang) {\n'
-    h += '  currentLang = (lang === "ja" || lang === "en") ? lang : "en";\n'
-    h += '  document.getElementById("btn-ja").classList.toggle("active", currentLang === "ja");\n'
-    h += '  document.getElementById("btn-en").classList.toggle("active", currentLang === "en");\n'
-    h += '  const t = dict[currentLang];\n'
-    h += '  document.getElementById("title").innerText = t.title;\n'
-    h += '  updateDateTime();\n'
-    h += '  updateWeather();\n'
-    h += '  const banner = document.getElementById("banner");\n'
-    h += '  banner.className = "banner " + (allHealthy ? "success" : "danger");\n'
-    h += '  banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;\n'
-    h += '  document.getElementById("footer-text").innerText = t.footerText;\n'
-    h += '  document.getElementById("footer-note").innerText = t.footerNote;\n'
-    h += '  const list = document.getElementById("service-list");\n'
-    h += '  list.innerHTML = "";\n'
-    h += '  services.forEach(s => {\n'
-    h += '    const isOk = s.status === "ok";\n'
-    h += '    const badgeClass = isOk ? "success" : "danger";\n'
-    h += '    const statusText = isOk ? t.statusOk : t.statusError;\n'
-    h += '    let displayName = s.name;\n'
-    h += '    if (currentLang === "en" && displayName === "ロイロノート") { displayName = "LoiLoNote"; }\n'
-    h += '    const li = document.createElement("li");\n'
-    h += '    li.className = "service-item";\n'
-    h += '    li.innerHTML = \'<span class="service-name">\' + displayName + \'</span><a href="\' + s.url + \'" target="_blank" rel="noopener noreferrer" class="badge-link"><span class="badge \' + badgeClass + \'">\' + statusText + \'</span></a>\';\n'
-    h += '    list.appendChild(li);\n'
-    h += '  });\n'
-    h += '}\n'
-    h += 'const userLang = navigator.language || navigator.userLanguage;\n'
-    h += 'const initialLang = userLang.startsWith("ja") ? "ja" : "en";\n'
-    h += 'setLanguage(initialLang);\n'
-    h += 'setInterval(updateDateTime, 1000);\n'
-    h += '</script>\n</body>\n</html>\n'
-
-    return h
-
-def main():
-    try:
-        results = {}
-        all_healthy = True
-
-        for name, url in TARGETS.items():
-            status_code, is_ok = check_service(url)
-            results[name] = (status_code, is_ok, url)
-            if not is_ok:
-                all_healthy = False
-
-        weather = fetch_weather()
-
-        jst = datetime.timezone(datetime.timedelta(hours=9))
-        checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
-
-        html_output = generate_html(results, checked_time, all_healthy, weather)
-        with open("index.html", "w", encoding="utf-8") as f:
-            f.write(html_output)
-        print("index.html generated successfully.")
-    except Exception as e:
-        print(f"Fatal error: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+    h += '.weather-label { color: #94a3b8; font-size: 0.85em; font-weight: 5

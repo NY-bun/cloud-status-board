@@ -152,4 +152,13 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += '.clock-text { font-size: clamp(22px, 2.2vw, 38px); font-weight: 700; color: #f8fafc; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }\n'
     h += '.weather-group { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(10px, 1.3vw, 20px); }\n'
     h += '.weather-pill { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 50px; padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px); font-size: clamp(14px, 1.3vw, 22px); font-weight: 600; color: #f1f5f9; font-variant-numeric: tabular-nums; }\n'
-    h += '.weather-label { color: #94a3b8; font-size: 0.85em; font-weight: 5
+    h += '.weather-label { color: #94a3b8; font-size: 0.85em; font-weight: 500; }\n'
+    h += '.banner { padding: clamp(14px, 1.8vw, 26px); border-radius: clamp(10px, 1vw, 16px); font-size: clamp(15px, 1.7vw, 28px); font-weight: bold; text-align: center; margin-bottom: clamp(20px, 2.5vw, 36px); border: 1px solid transparent; }\n'
+    h += '.banner.success { background-color: rgba(16, 185, 129, 0.14); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35); }\n'
+    h += '.banner.danger { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }\n'
+    h += '.service-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: clamp(10px, 1.4vw, 20px); }\n'
+    h += '@media (min-width: 900px) { .service-list { grid-template-columns: repeat(2, 1fr); } }\n'
+    h += '.service-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(15, 23, 42, 0.55); border: 1px solid #334155; border-radius: clamp(10px, 1vw, 16px); padding: clamp(14px, 1.8vw, 26px) clamp(16px, 2.2vw, 32px); }\n'
+    h += '.service-name { font-weight: 600; font-size: clamp(15px, 1.6vw, 26px); color: #f1f5f9; line-height: 1.3; }\n'
+    h += '.badge-link { text-decoration: none; flex-shrink: 0; }\n'
+    h += '.badge { display: inline-block; padding: clamp(7px, 0.9vw, 14px) clamp(14px,

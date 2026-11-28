@@ -56,7 +56,7 @@ US_FLAG_SVG = """<svg viewBox="0 0 36 36" width="100%" height="100%" aria-hidden
   <rect x="0" y="0" width="18" height="19.4" fill="#3c3b6e"/>
 </svg>"""
 
-HTML_TEMPLATE = """<!DOCTYPE html>
+HEAD_TEMPLATE = """<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -64,7 +64,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <title>Bunsugi Cloud Service Status</title>
 <link rel="icon" href="__FAVICON_DATA__">
 <meta http-equiv="refresh" content="300">
-<style>
+"""
+
+CSS_TEMPLATE = """<style>
 * {
   box-sizing: border-box;
 }
@@ -194,4 +196,5 @@ h1 {
   background: #1e293b;
   border: 1px solid #334155;
   border-radius: 50px;
-  padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18
+  padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px);
+  font-size: clamp(14

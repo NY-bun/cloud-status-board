@@ -1,4 +1,5 @@
 import datetime
+import json
 import urllib.request
 import urllib.error
 import sys
@@ -10,6 +11,32 @@ TARGETS = {
     "Canva": "https://www.canvastatus.com/",
     "Zoom": "https://www.zoomstatus.com/",
     "L-Gate": "https://l-gate-status.info/"
+}
+
+# 杉並区付近の緯度・経度（必要に応じて変更可能）
+LATITUDE = 35.6995
+LONGITUDE = 139.6364
+
+WMO_WEATHER_LABELS = {
+    0: ("快晴", "Clear sky", "☀️"),
+    1: ("晴れ", "Mainly clear", "🌤️"),
+    2: ("一部くもり", "Partly cloudy", "⛅"),
+    3: ("くもり", "Overcast", "☁️"),
+    45: ("霧", "Fog", "🌫️"),
+    48: ("霧氷", "Depositing rime fog", "🌫️"),
+    51: ("弱い霧雨", "Light drizzle", "🌦️"),
+    53: ("霧雨", "Moderate drizzle", "🌦️"),
+    55: ("強い霧雨", "Dense drizzle", "🌦️"),
+    61: ("弱い雨", "Slight rain", "🌧️"),
+    63: ("雨", "Moderate rain", "🌧️"),
+    65: ("強い雨", "Heavy rain", "🌧️"),
+    71: ("弱い雪", "Slight snow", "🌨️"),
+    73: ("雪", "Moderate snow", "❄️"),
+    75: ("強い雪", "Heavy snow", "❄️"),
+    80: ("にわか雨", "Rain showers", "🌦️"),
+    81: ("強いにわか雨", "Moderate showers", "🌧️"),
+    82: ("激しいにわか雨", "Violent showers", "⛈️"),
+    95: ("雷雨", "Thunderstorm", "⛈️"),
 }
 
 def check_service(url):
@@ -27,12 +54,74 @@ def check_service(url):
         print(f"Warning: Failed to check {url} - {e}")
         return "error", False
 
-def generate_html(results, checked_time, all_healthy):
+def fetch_weather(lat=LATITUDE, lon=LONGITUDE):
+    url = (
+        f"https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
+        f"&current=temperature_2m,weather_code"
+        f"&hourly=precipitation_probability"
+        f"&timezone=Asia%2FTokyo&forecast_days=1"
+    )
+    fallback = {
+        "available": False,
+        "icon": "🌡️",
+        "ja": "取得不可",
+        "en": "N/A",
+        "temp": "--",
+        "precip": "--"
+    }
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        current = data.get("current", {})
+        code = current.get("weather_code")
+        temp_val = current.get("temperature_2m")
+        temp_str = f"{round(temp_val, 1)}°C" if isinstance(temp_val, (int, float)) else "--"
+
+        hourly = data.get("hourly", {})
+        times = hourly.get("time", [])
+        probs = hourly.get("precipitation_probability", [])
+        cur_time_str = current.get("time", "")
+        cur_hour_prefix = cur_time_str[:13] if len(cur_time_str) >= 13 else ""
+
+        precip_str = "--"
+        if cur_hour_prefix and len(times) == len(probs):
+            for t_str, p_val in zip(times, probs):
+                if t_str.startswith(cur_hour_prefix) and p_val is not None:
+                    precip_str = f"{p_val}%"
+                    break
+        if precip_str == "--" and probs:
+            first_prob = next((p for p in probs if p is not None), None)
+            if first_prob is not None:
+                precip_str = f"{first_prob}%"
+
+        ja_label, en_label, icon = WMO_WEATHER_LABELS.get(
+            code, ("その他", "Other", "🌡️")
+        )
+        return {
+            "available": True,
+            "icon": icon,
+            "ja": ja_label,
+            "en": en_label,
+            "temp": temp_str,
+            "precip": precip_str
+        }
+    except Exception as e:
+        print(f"Warning: Failed to fetch weather - {e}")
+        return fallback
+
+def generate_html(results, checked_time, all_healthy, weather):
     items_js = []
     for name, (status_code, is_ok, url) in results.items():
         escaped_name = name.replace('"', '\\"')
         items_js.append('{"name": "' + escaped_name + '", "status": "' + status_code + '", "url": "' + url + '"}')
     items_str = "[" + ", ".join(items_js) + "]"
+    weather_json = json.dumps(weather, ensure_ascii=False)
 
     favicon_emoji = "🟢" if all_healthy else "🔴"
     favicon_data = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>" + favicon_emoji + "</text></svg>"
@@ -54,7 +143,17 @@ def generate_html(results, checked_time, all_healthy):
     h += '.lang-btn:hover { color: #f8fafc; }\n'
     h += '.lang-btn.active { background: #334155; color: #f8fafc; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }\n'
     h += '.container { background: #1e293b; border: 1px solid #334155; padding: clamp(20px, 3.2vw, 48px); border-radius: clamp(14px, 1.5vw, 24px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }\n'
-    h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 32px); color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: clamp(12px, 1.5vw, 24px); text-align: center; letter-spacing: 0.5px; }\n'
+    h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 28px); color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: clamp(12px, 1.5vw, 22px); text-align: center; letter-spacing: 0.5px; }\n'
+    h += '.info-bar { display: none; }\n'
+    h += '@media (min-width: 900px) {\n'
+    h += '  .info-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: clamp(12px, 1.6vw, 24px); background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: clamp(10px, 1vw, 16px); padding: clamp(12px, 1.4vw, 20px) clamp(18px, 2vw, 28px); margin-bottom: clamp(18px, 2.2vw, 30px); }\n'
+    h += '}\n'
+    h += '.datetime-group { display: flex; align-items: baseline; gap: clamp(12px, 1.4vw, 22px); }\n'
+    h += '.date-text { font-size: clamp(16px, 1.5vw, 26px); font-weight: 600; color: #cbd5e1; }\n'
+    h += '.clock-text { font-size: clamp(22px, 2.2vw, 38px); font-weight: 700; color: #f8fafc; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }\n'
+    h += '.weather-group { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(10px, 1.3vw, 20px); }\n'
+    h += '.weather-pill { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 50px; padding: clamp(6px, 0.6vw, 10px) clamp(12px, 1.2vw, 18px); font-size: clamp(14px, 1.3vw, 22px); font-weight: 600; color: #f1f5f9; font-variant-numeric: tabular-nums; }\n'
+    h += '.weather-label { color: #94a3b8; font-size: 0.85em; font-weight: 500; }\n'
     h += '.banner { padding: clamp(14px, 1.8vw, 26px); border-radius: clamp(10px, 1vw, 16px); font-size: clamp(15px, 1.7vw, 28px); font-weight: bold; text-align: center; margin-bottom: clamp(20px, 2.5vw, 36px); border: 1px solid transparent; }\n'
     h += '.banner.success { background-color: rgba(16, 185, 129, 0.14); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35); }\n'
     h += '.banner.danger { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }\n'
@@ -76,6 +175,17 @@ def generate_html(results, checked_time, all_healthy):
     h += '</div></div>\n'
     h += '<div class="container">\n'
     h += '<h1 id="title"></h1>\n'
+    h += '<div class="info-bar" id="info-bar">\n'
+    h += '  <div class="datetime-group">\n'
+    h += '    <span class="date-text" id="date-text"></span>\n'
+    h += '    <span class="clock-text" id="clock-text"></span>\n'
+    h += '  </div>\n'
+    h += '  <div class="weather-group">\n'
+    h += '    <span class="weather-pill"><span id="weather-icon"></span><span id="weather-cond"></span></span>\n'
+    h += '    <span class="weather-pill"><span class="weather-label" id="temp-label"></span><span id="weather-temp"></span></span>\n'
+    h += '    <span class="weather-pill"><span class="weather-label" id="precip-label"></span><span id="weather-precip"></span></span>\n'
+    h += '  </div>\n'
+    h += '</div>\n'
     h += '<div id="banner" class="banner"></div>\n'
     h += '<ul class="service-list" id="service-list"></ul>\n'
     h += '<div class="footer">\n'
@@ -85,15 +195,48 @@ def generate_html(results, checked_time, all_healthy):
     h += '<script>\n'
     h += 'const allHealthy = ' + ("true" if all_healthy else "false") + ';\n'
     h += 'const services = ' + items_str + ';\n'
+    h += 'const weather = ' + weather_json + ';\n'
+    h += 'let currentLang = "ja";\n'
     h += 'const dict = {\n'
-    h += '  ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは10分おきに自動更新されます" },\n'
-    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 10 minutes" }\n'
+    h += '  ja: { title: "文杉クラウドサービス稼働状況", bannerSuccess: "すべてのサービスは正常に稼働しています", bannerDanger: "一部のサービスに異常・接続エラーを検知しています", statusOk: "正常稼働中", statusError: "接続エラー", footerText: "最終確認日時", footerNote: "※このページは10分おきに自動更新されます", tempLabel: "気温", precipLabel: "降水確率", weekdays: ["日", "月", "火", "水", "木", "金", "土"] },\n'
+    h += '  en: { title: "Bunsugi Cloud Service Status", bannerSuccess: "All services are operating normally", bannerDanger: "Issues or connection errors detected", statusOk: "Operational", statusError: "Connection Error", footerText: "Last checked", footerNote: "*This page automatically refreshes every 10 minutes", tempLabel: "Temp", precipLabel: "Precip", weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] }\n'
     h += '};\n'
+    h += 'function updateDateTime() {\n'
+    h += '  const now = new Date();\n'
+    h += '  const t = dict[currentLang] || dict.en;\n'
+    h += '  const y = now.getFullYear();\n'
+    h += '  const m = now.getMonth() + 1;\n'
+    h += '  const d = now.getDate();\n'
+    h += '  const w = t.weekdays[now.getDay()];\n'
+    h += '  const dateEl = document.getElementById("date-text");\n'
+    h += '  const clockEl = document.getElementById("clock-text");\n'
+    h += '  if (dateEl) {\n'
+    h += '    dateEl.innerText = currentLang === "ja" ? (y + "年" + m + "月" + d + "日 (" + w + ")") : (w + ", " + now.toLocaleString("en-US", { month: "short" }) + " " + d + ", " + y);\n'
+    h += '  }\n'
+    h += '  if (clockEl) {\n'
+    h += '    const hh = String(now.getHours()).padStart(2, "0");\n'
+    h += '    const mm = String(now.getMinutes()).padStart(2, "0");\n'
+    h += '    const ss = String(now.getSeconds()).padStart(2, "0");\n'
+    h += '    clockEl.innerText = hh + ":" + mm + ":" + ss;\n'
+    h += '  }\n'
+    h += '}\n'
+    h += 'function updateWeather() {\n'
+    h += '  const t = dict[currentLang] || dict.en;\n'
+    h += '  document.getElementById("weather-icon").innerText = weather.icon || "🌡️";\n'
+    h += '  document.getElementById("weather-cond").innerText = currentLang === "ja" ? weather.ja : weather.en;\n'
+    h += '  document.getElementById("temp-label").innerText = t.tempLabel;\n'
+    h += '  document.getElementById("weather-temp").innerText = weather.temp;\n'
+    h += '  document.getElementById("precip-label").innerText = t.precipLabel;\n'
+    h += '  document.getElementById("weather-precip").innerText = weather.precip;\n'
+    h += '}\n'
     h += 'function setLanguage(lang) {\n'
-    h += '  document.getElementById("btn-ja").classList.toggle("active", lang === "ja");\n'
-    h += '  document.getElementById("btn-en").classList.toggle("active", lang === "en");\n'
-    h += '  const t = dict[lang] || dict.en;\n'
+    h += '  currentLang = (lang === "ja" || lang === "en") ? lang : "en";\n'
+    h += '  document.getElementById("btn-ja").classList.toggle("active", currentLang === "ja");\n'
+    h += '  document.getElementById("btn-en").classList.toggle("active", currentLang === "en");\n'
+    h += '  const t = dict[currentLang];\n'
     h += '  document.getElementById("title").innerText = t.title;\n'
+    h += '  updateDateTime();\n'
+    h += '  updateWeather();\n'
     h += '  const banner = document.getElementById("banner");\n'
     h += '  banner.className = "banner " + (allHealthy ? "success" : "danger");\n'
     h += '  banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;\n'
@@ -106,7 +249,7 @@ def generate_html(results, checked_time, all_healthy):
     h += '    const badgeClass = isOk ? "success" : "danger";\n'
     h += '    const statusText = isOk ? t.statusOk : t.statusError;\n'
     h += '    let displayName = s.name;\n'
-    h += '    if (lang === "en" && displayName === "ロイロノート") { displayName = "LoiLoNote"; }\n'
+    h += '    if (currentLang === "en" && displayName === "ロイロノート") { displayName = "LoiLoNote"; }\n'
     h += '    const li = document.createElement("li");\n'
     h += '    li.className = "service-item";\n'
     h += '    li.innerHTML = \'<span class="service-name">\' + displayName + \'</span><a href="\' + s.url + \'" target="_blank" rel="noopener noreferrer" class="badge-link"><span class="badge \' + badgeClass + \'">\' + statusText + \'</span></a>\';\n'
@@ -116,6 +259,7 @@ def generate_html(results, checked_time, all_healthy):
     h += 'const userLang = navigator.language || navigator.userLanguage;\n'
     h += 'const initialLang = userLang.startsWith("ja") ? "ja" : "en";\n'
     h += 'setLanguage(initialLang);\n'
+    h += 'setInterval(updateDateTime, 1000);\n'
     h += '</script>\n</body>\n</html>\n'
 
     return h
@@ -131,10 +275,12 @@ def main():
             if not is_ok:
                 all_healthy = False
 
+        weather = fetch_weather()
+
         jst = datetime.timezone(datetime.timedelta(hours=9))
         checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
 
-        html_output = generate_html(results, checked_time, all_healthy)
+        html_output = generate_html(results, checked_time, all_healthy, weather)
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(html_output)
         print("index.html generated successfully.")

@@ -44,29 +44,256 @@ def generate_html(results, checked_time, all_healthy):
     h += '<title>Bunsugi Cloud Service Status</title>\n'
     h += '<link rel="icon" href="' + favicon_data + '">\n'
     h += '<meta http-equiv="refresh" content="300">\n'
-    h += '<style>\n'
-    h += 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }\n'
-    h += '.wrapper { max-width: 600px; margin: 20px auto; position: relative; }\n'
-    h += '.lang-switcher { display: flex; justify-content: flex-end; margin-bottom: 12px; }\n'
-    h += '.pill { display: inline-flex; background: #e0e4e8; border-radius: 50px; padding: 3px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }\n'
-    h += '.lang-btn { background: transparent; border: none; padding: 6px 16px; border-radius: 50px; cursor: pointer; font-size: 12px; font-weight: 600; color: #666; transition: all 0.2s ease; }\n'
-    h += '.lang-btn.active { background: #ffffff; color: #2c3e50; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }\n'
-    h += '.container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }\n'
-    h += 'h1 { font-size: 22px; margin-top: 0; margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 15px; text-align: center; letter-spacing: 0.5px; }\n'
-    h += '.banner { padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 25px; }\n'
-    h += '.banner.success { background-color: #e8f8f5; color: #117a65; }\n'
-    h += '.banner.danger { background-color: #f8d7da; color: #721c24; }\n'
-    h += '.service-list { list-style: none; padding: 0; margin: 0; }\n'
-    h += '.service-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }\n'
-    h += '.service-item:last-child { border-bottom: none; }\n'
-    h += '.service-name { font-weight: 600; font-size: 16px; }\n'
-    h += '.badge-link { text-decoration: none; }\n'
-    h += '.badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; transition: opacity 0.2s; }\n'
-    h += '.badge:hover { opacity: 0.85; }\n'
-    h += '.badge.success { background-color: #2ecc71; color: white; }\n'
-    h += '.badge.danger { background-color: #e74c3c; color: white; }\n'
-    h += '.footer { margin-top: 25px; font-size: 12px; color: #7f8c8d; text-align: center; }\n'
-    h += '</style>\n</head>\n<body>\n'
+   :root{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --text:#f8fafc;
+    --sub:#cbd5e1;
+    --border:#334155;
+    --ok:#22c55e;
+    --ok-bg:#14532d;
+    --error:#ef4444;
+    --error-bg:#7f1d1d;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    font-size:16px;
+}
+
+body{
+    margin:0;
+    padding:16px;
+    font-family:-apple-system,BlinkMacSystemFont,
+                "Segoe UI",Roboto,
+                "Helvetica Neue",Arial,sans-serif;
+
+    background:var(--bg);
+    color:var(--text);
+
+    min-height:100vh;
+}
+
+.wrapper{
+    width:100%;
+    max-width:1400px;
+    margin:0 auto;
+}
+
+.lang-switcher{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:12px;
+}
+
+.pill{
+    display:inline-flex;
+    background:#334155;
+    border-radius:50px;
+    padding:3px;
+}
+
+.lang-btn{
+    background:transparent;
+    border:none;
+    color:#cbd5e1;
+    cursor:pointer;
+    padding:8px 16px;
+    border-radius:50px;
+    font-size:14px;
+}
+
+.lang-btn.active{
+    background:#475569;
+    color:white;
+}
+
+.container{
+    background:var(--card);
+    border-radius:20px;
+    padding:clamp(16px, 3vw, 40px);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.35);
+}
+
+h1{
+    text-align:center;
+
+    font-size:
+        clamp(24px, 4vw, 54px);
+
+    margin:0;
+    padding-bottom:20px;
+
+    border-bottom:
+        2px solid var(--border);
+
+    color:white;
+}
+
+.header-panel{
+    text-align:center;
+
+    padding:20px 0;
+}
+
+#datetime{
+    font-size:
+        clamp(20px, 3vw, 42px);
+
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+#weather{
+    font-size:
+        clamp(18px, 2.5vw, 32px);
+
+    color:var(--sub);
+}
+
+.banner{
+    text-align:center;
+
+    border-radius:12px;
+
+    padding:
+      clamp(12px,2vw,24px);
+
+    margin-bottom:24px;
+
+    font-weight:700;
+
+    font-size:
+        clamp(15px, 2vw, 28px);
+}
+
+.banner.success{
+    background:var(--ok-bg);
+    color:#bbf7d0;
+}
+
+.banner.danger{
+    background:var(--error-bg);
+    color:#fecaca;
+}
+
+.service-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.service-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    gap:16px;
+
+    padding:18px 0;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+.service-item:last-child{
+    border-bottom:none;
+}
+
+.service-name{
+    font-size:
+        clamp(16px, 2vw, 30px);
+
+    font-weight:600;
+}
+
+.badge-link{
+    text-decoration:none;
+}
+
+.badge{
+    display:inline-block;
+
+    padding:
+      clamp(8px,1vw,12px)
+      clamp(16px,2vw,28px);
+
+    border-radius:999px;
+
+    font-size:
+      clamp(13px,1.7vw,22px);
+
+    font-weight:700;
+
+    white-space:nowrap;
+}
+
+.badge.success{
+    background:var(--ok);
+    color:white;
+}
+
+.badge.danger{
+    background:var(--error);
+    color:white;
+}
+
+.footer{
+    margin-top:24px;
+
+    text-align:center;
+
+    color:#94a3b8;
+
+    font-size:
+      clamp(12px,1.2vw,18px);
+
+    line-height:1.8;
+}
+
+/* スマホ */
+
+@media (max-width:768px){
+
+    body{
+        padding:10px;
+    }
+
+    .lang-switcher{
+        justify-content:center;
+    }
+
+    .service-item{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .badge{
+        align-self:flex-end;
+    }
+
+    .container{
+        padding:18px;
+    }
+}
+
+/* 大型モニター */
+
+@media (min-width:1600px){
+
+    .container{
+        padding:50px;
+    }
+
+    .service-item{
+        padding:24px 0;
+    }
+}
     h += '<div class="wrapper">\n'
     h += '<div class="lang-switcher"><div class="pill">\n'
     h += '<button class="lang-btn" id="btn-ja" onclick="setLanguage(\'ja\')">日本語</button>\n'
@@ -74,6 +301,10 @@ def generate_html(results, checked_time, all_healthy):
     h += '</div></div>\n'
     h += '<div class="container">\n'
     h += '<h1 id="title"></h1>\n'
+<div class="header-panel">
+    <div id="datetime"></div>
+    <div id="weather"></div>
+</div>
     h += '<div id="banner" class="banner"></div>\n'
     h += '<ul class="service-list" id="service-list"></ul>\n'
     h += '<div class="footer">\n'

@@ -164,10 +164,4 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += '.flag-btn.active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); transform: scale(1.06); }\n'
     h += '.flag-btn svg { width: 100%; height: 100%; display: block; }\n'
     h += '.container { background: #1e293b; border: 1px solid #334155; padding: clamp(20px, 3.2vw, 48px); border-radius: clamp(14px, 1.5vw, 24px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }\n'
-    h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 28px); color: #f8fafc; border-bottom: 1px solid #334155; padding-bottom: clamp(12px, 1.5vw, 22px); text-align: center; letter-spacing: 0.5px; }\n'
-    h += '.info-bar { display: none; }\n'
-    h += '@media (min-width: 900px) { .info-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: clamp(12px, 1.6vw, 24px); background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: clamp(10px, 1vw, 16px); padding: clamp(12px, 1.4vw, 20px) clamp(18px, 2vw, 28px); margin-bottom: clamp(18px, 2.2vw, 30px); } }\n'
-    h += '.datetime-group { display: flex; align-items: baseline; gap: clamp(12px, 1.4vw, 22px); }\n'
-    h += '.date-text { font-size: clamp(16px, 1.5vw, 26px); font-weight: 600; color: #cbd5e1; }\n'
-    h += '.clock-text { font-size: clamp(22px, 2.2vw, 38px); font-weight: 700; color: #f8fafc; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }\n'
-    h += '.weather-group { display: flex; flex-wrap: wrap;
+    h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 28px); color: #f8fafc; border-bottom: 1

@@ -159,6 +159,4 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += '.service-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: clamp(10px, 1.4vw, 20px); }\n'
     h += '@media (min-width: 900px) { .service-list { grid-template-columns: repeat(2, 1fr); } }\n'
     h += '.service-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(15, 23, 42, 0.55); border: 1px solid #334155; border-radius: clamp(10px, 1vw, 16px); padding: clamp(14px, 1.8vw, 26px) clamp(16px, 2.2vw, 32px); }\n'
-    h += '.service-name { font-weight: 600; font-size: clamp(15px, 1.6vw, 26px); color: #f1f5f9; line-height: 1.3; }\n'
-    h += '.badge-link { text-decoration: none; flex-shrink: 0; }\n'
-    h += '.badge { display: inline-block; padding: clamp(7px, 0.9vw, 14px) clamp(14px,
+    h

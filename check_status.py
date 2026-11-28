@@ -1,11 +1,3 @@
-`HTML_TEMPLATE` を閉じる最後の `"""` が途中で欠落・折り返し崩れを起こしているため、`SyntaxError: unterminated triple-quoted string literal` が発生しています。末尾の `</html>` の直後に閉じの `"""` を確実に配置した完全版の `check_status.py` です。
-
-### 修正点
-
-* **原因:** `HTML_TEMPLATE = """..."""` の終端 `"""` が閉じられていませんでした。
-* **修正:** 末尾の `</html>` の次の行に `"""` を置いて三重引用符文字列を正しく閉じました。
-
-```python
 import datetime
 import json
 import urllib.request
@@ -444,7 +436,7 @@ def check_service(url):
             else:
                 return "error", False
     except Exception as e:
-        print(f"Warning: Failed to check {url} - {e}")
+        print(f"Warning: Failed to check {url}\n{e}")
         return "error", False
 
 def fetch_weather(lat=LATITUDE, lon=LONGITUDE):
@@ -558,5 +550,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-```

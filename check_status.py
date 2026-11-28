@@ -162,22 +162,22 @@ h1 {
     background: rgba(15, 23, 42, 0.7);
     border: 1px solid #334155;
     border-radius: clamp(10px, 1vw, 16px);
-    padding: clamp(12px, 1.4vw, 20px) clamp(18px, 2vw, 28px);
+    padding: clamp(14px, 1.5vw, 24px) clamp(20px, 2.2vw, 32px);
     margin-bottom: clamp(18px, 2.2vw, 30px);
   }
 }
 .datetime-group {
   display: flex;
   align-items: baseline;
-  gap: clamp(12px, 1.4vw, 22px);
+  gap: clamp(14px, 1.6vw, 28px);
 }
 .date-text {
-  font-size: clamp(16px, 1.5vw, 26px);
+  font-size: clamp(18px, 2.0vw, 36px);
   font-weight: 600;
   color: #cbd5e1;
 }
 .clock-text {
-  font-size: clamp(22px, 2.2vw, 38px);
+  font-size: clamp(28px, 3.2vw, 56px);
   font-weight: 700;
   color: #f8fafc;
   font-variant-numeric: tabular-nums;

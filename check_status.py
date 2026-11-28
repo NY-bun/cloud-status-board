@@ -1,3 +1,11 @@
+`HTML_TEMPLATE` を閉じる最後の `"""` が途中で欠落・折り返し崩れを起こしているため、`SyntaxError: unterminated triple-quoted string literal` が発生しています。末尾の `</html>` の直後に閉じの `"""` を確実に配置した完全版の `check_status.py` です。
+
+### 修正点
+
+* **原因:** `HTML_TEMPLATE = """..."""` の終端 `"""` が閉じられていませんでした。
+* **修正:** 末尾の `</html>` の次の行に `"""` を置いて三重引用符文字列を正しく閉じました。
+
+```python
 import datetime
 import json
 import urllib.request
@@ -396,4 +404,159 @@ function setLanguage(lang) {
   const banner = document.getElementById("banner");
   banner.className = "banner " + (allHealthy ? "success" : "danger");
   banner.innerText = allHealthy ? t.bannerSuccess : t.bannerDanger;
-  document.getElementById
+  document.getElementById("footer-text").innerText = t.footerText;
+  document.getElementById("footer-note").innerText = t.footerNote;
+  const list = document.getElementById("service-list");
+  list.innerHTML = "";
+  services.forEach(s => {
+    const isOk = s.status === "ok";
+    const badgeClass = isOk ? "success" : "danger";
+    const statusText = isOk ? t.statusOk : t.statusError;
+    let displayName = s.name;
+    if (currentLang === "en" && displayName === "ロイロノート") {
+      displayName = "LoiLoNote";
+    }
+    const li = document.createElement("li");
+    li.className = "service-item";
+    li.innerHTML = '<span class="service-name">' + displayName + '</span><a href="' + s.url + '" target="_blank" rel="noopener noreferrer" class="badge-link"><span class="badge ' + badgeClass + '">' + statusText + '</span></a>';
+    list.appendChild(li);
+  });
+}
+
+const userLang = navigator.language || navigator.userLanguage;
+const initialLang = userLang.startsWith("ja") ? "ja" : "en";
+setLanguage(initialLang);
+setInterval(updateDateTime, 1000);
+</script>
+</body>
+</html>
+"""
+
+def check_service(url):
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                return "ok", True
+            else:
+                return "error", False
+    except Exception as e:
+        print(f"Warning: Failed to check {url} - {e}")
+        return "error", False
+
+def fetch_weather(lat=LATITUDE, lon=LONGITUDE):
+    url = (
+        f"https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
+        f"&current=temperature_2m,weather_code"
+        f"&hourly=precipitation_probability"
+        f"&timezone=Asia%2FTokyo&forecast_days=1"
+    )
+    fallback = {
+        "available": False,
+        "icon": "🌡️",
+        "ja": "取得不可",
+        "en": "N/A",
+        "temp": "--",
+        "precip": "--"
+    }
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        current = data.get("current", {})
+        code = current.get("weather_code")
+        temp_val = current.get("temperature_2m")
+        temp_str = f"{round(temp_val, 1)}°C" if isinstance(temp_val, (int, float)) else "--"
+
+        hourly = data.get("hourly", {})
+        times = hourly.get("time", [])
+        probs = hourly.get("precipitation_probability", [])
+        cur_time_str = current.get("time", "")
+        cur_hour_prefix = cur_time_str[:13] if len(cur_time_str) >= 13 else ""
+
+        precip_str = "--"
+        if cur_hour_prefix and len(times) == len(probs):
+            for t_str, p_val in zip(times, probs):
+                if t_str.startswith(cur_hour_prefix) and p_val is not None:
+                    precip_str = f"{p_val}%"
+                    break
+        if precip_str == "--" and probs:
+            first_prob = next((p for p in probs if p is not None), None)
+            if first_prob is not None:
+                precip_str = f"{first_prob}%"
+
+        ja_label, en_label, icon = WMO_WEATHER_LABELS.get(
+            code, ("その他", "Other", "🌡️")
+        )
+        return {
+            "available": True,
+            "icon": icon,
+            "ja": ja_label,
+            "en": en_label,
+            "temp": temp_str,
+            "precip": precip_str
+        }
+    except Exception as e:
+        print(f"Warning: Failed to fetch weather - {e}")
+        return fallback
+
+def generate_html(results, checked_time, all_healthy, weather):
+    items_js = []
+    for name, (status_code, is_ok, url) in results.items():
+        escaped_name = name.replace('"', '\\"')
+        items_js.append('{"name": "' + escaped_name + '", "status": "' + status_code + '", "url": "' + url + '"}')
+    items_str = "[" + ", ".join(items_js) + "]"
+    weather_json = json.dumps(weather, ensure_ascii=False)
+
+    favicon_emoji = "🟢" if all_healthy else "🔴"
+    favicon_data = (
+        "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>"
+        "<text y='.9em' font-size='90'>" + favicon_emoji + "</text></svg>"
+    )
+
+    html = HTML_TEMPLATE
+    html = html.replace("__FAVICON_DATA__", favicon_data)
+    html = html.replace("__CHECKED_TIME__", checked_time)
+    html = html.replace("__JP_FLAG_SVG__", JP_FLAG_SVG)
+    html = html.replace("__US_FLAG_SVG__", US_FLAG_SVG)
+    html = html.replace("__ALL_HEALTHY__", "true" if all_healthy else "false")
+    html = html.replace("__SERVICES_JSON__", items_str)
+    html = html.replace("__WEATHER_JSON__", weather_json)
+    return html
+
+def main():
+    try:
+        results = {}
+        all_healthy = True
+
+        for name, url in TARGETS.items():
+            status_code, is_ok = check_service(url)
+            results[name] = (status_code, is_ok, url)
+            if not is_ok:
+                all_healthy = False
+
+        weather = fetch_weather()
+
+        jst = datetime.timezone(datetime.timedelta(hours=9))
+        checked_time = datetime.datetime.now(jst).strftime('%Y-%m-%d %H:%M:%S')
+
+        html_output = generate_html(results, checked_time, all_healthy, weather)
+        with open("index.html", "w", encoding="utf-8") as f:
+            f.write(html_output)
+        print("index.html generated successfully.")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+
+```

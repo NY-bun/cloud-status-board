@@ -159,9 +159,4 @@ def generate_html(results, checked_time, all_healthy, weather):
     h += 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; padding: clamp(12px, 2.5vw, 32px); padding-bottom: clamp(88px, 8vw, 124px); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }\n'
     h += '.wrapper { width: 100%; max-width: 1440px; margin: 0 auto; }\n'
     h += '.lang-fab { position: fixed; right: clamp(16px, 2.2vw, 32px); bottom: clamp(16px, 2.2vw, 32px); z-index: 100; display: inline-flex; align-items: center; gap: clamp(8px, 0.8vw, 12px); background: rgba(30, 41, 59, 0.94); backdrop-filter: blur(8px); border: 1px solid #334155; border-radius: 999px; padding: clamp(6px, 0.6vw, 10px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }\n'
-    h += '.flag-btn { width: clamp(40px, 3.6vw, 56px); height: clamp(40px, 3.6vw, 56px); border-radius: 50%; overflow: hidden; border: 2px solid transparent; background: #1e293b; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.55; transition: all 0.2s ease; padding: 0; }\n'
-    h += '.flag-btn:hover { opacity: 0.9; transform: scale(1.06); }\n'
-    h += '.flag-btn.active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); transform: scale(1.06); }\n'
-    h += '.flag-btn svg { width: 100%; height: 100%; display: block; }\n'
-    h += '.container { background: #1e293b; border: 1px solid #334155; padding: clamp(20px, 3.2vw, 48px); border-radius: clamp(14px, 1.5vw, 24px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }\n'
-    h += 'h1 { font-size: clamp(20px, 2.6vw, 44px); margin-top: 0; margin-bottom: clamp(16px, 2.2vw, 28px); color: #f8fafc; border-bottom: 1
+    h += '.flag-btn { width: clamp(40px, 3.6vw, 56px); height: clamp(40px, 3.6vw, 56px); border-radius: 50%; overflow: hidden; border: 2px solid transparent; background: #1e293b; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.55; transition
